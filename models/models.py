@@ -28,13 +28,24 @@ class GeneticData:
 
     def __post_init__(self):
         supported_chromosomes = set()
+        supported_alleles = set()
 
         for member in ChromosomeEnum.__members__.values():
             if member is not None:
                 supported_chromosomes.add(member)
 
+        for member in AlleleEnum.__members__.values():
+            if member is not None:
+                supported_alleles.add(member)
+
         if self.chromosome not in supported_chromosomes:
             raise ValueError(f"Unsupported chromosome value: {self.chromosome}")
+
+        if self.reference_allele not in supported_alleles:
+            raise ValueError(f"Unsupported allele value: {self.reference_allele}")
+        
+        if self.alternate_allele not in supported_alleles:
+            raise ValueError(f"Unsupported allele value: {self.reference_allele}")
 
 
 @dataclass

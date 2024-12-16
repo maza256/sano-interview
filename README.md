@@ -2,6 +2,9 @@ This is the implementation for the Sano Interview take home test
 
 It has been built using FastAPI to provide the endpoints, and uses a sqlite database for the storing and retrieving of user data.
 
+You can find the recording of my Loom video here:
+https://www.loom.com/share/54143cb84c444b32a9d81390785308c8
+
 #Usage
 Install the requirements listed in requirements.txt:
 
@@ -35,12 +38,14 @@ Providing a request body as `application/json` type of the form:
 
 ##Insert individuals data
 
-    POST /indiivudals/{individual_id}/genetic_data
+    POST /indivudals/{individual_id}/genetic_data
 
 Providing a request body as a multipart/form-data containing the file data to be uploaded.
 
 #Further improvements
 
 Currently there is limited checking on the data. If one field is empty, then the whole file is not uploaded, which may not be the desired outcome.
+
+The data is all processed in memory and could be chunked in sections.
 
 Further testing could be implemented to think of further corner cases and scenarios in which the data could be inserted incorrectly, and performance could be improved by using threading if many users were going to be uploading and retrieiving data.

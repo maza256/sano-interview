@@ -38,6 +38,7 @@ def test_parse_file_to_genetic_data():
         result = list(file_parser.parse_file_to_genetic_data(contents))
         assert result[0] == expected_line_one_data
 
+
 def test_invalid_parse_file_to_genetic_data():
     with pytest.raises(TypeError):
         with open("tests/wrong_individual123.sano") as f:
