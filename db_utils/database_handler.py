@@ -1,16 +1,17 @@
 import os
 import sqlite3
 from configparser import ConfigParser
+from typing import Any, List, Optional
 
-from ..models.models import GeneticData, User, ChromosomeEnum, AlleleEnum
+from ..models.models import AlleleEnum, ChromosomeEnum, GeneticData, User
 
 
 class DatabaseHandler:
-    def __init__(self, config_file):
+    def __init__(self, config_file: str):
         if not config_file:
             raise Exception("No Config file provided")
-        self.config = self._load_config(config_file)
-        self.db_path = self.config.get("database", "db_path")
+        self.config: ConfigParser = self._load_config(config_file)
+        self.db_path: str = self.config.get("database", "db_path")
 
         if not self.db_path:
             raise ValueError("Database path not specified in the config file.")
@@ -21,22 +22,24 @@ class DatabaseHandler:
 
         self._initialise_tables_if_not_exist()
 
-    def _load_config(self, config_file):
+    def _load_config(self, config_file: str) -> ConfigParser:
         config = ConfigParser()
         if not os.path.exists(config_file):
             raise FileNotFoundError(f"Configuration file {config_file} not found.")
         config.read(config_file)
         return config
 
-    def _connect(self):
+    def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_path)
         return conn
 
-    def _close(self, conn):
+    def _close(self, conn: sqlite3.Connection) -> None:
         if conn:
             conn.close()
 
-    def initialise_genetic_data_table(self, conn, cursor):
+    def initialise_genetic_data_table(
+        self, conn: sqlite3.Connection, cursor: sqlite3.Cursor
+    ) -> None:
         create_table_query = """
             CREATE TABLE IF NOT EXISTS genetic_data_table (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,7 +61,9 @@ class DatabaseHandler:
             print(f"Error executing query: {e}")
             conn.rollback()
 
-    def initialise_users_table(self, conn, cursor):
+    def initialise_users_table(
+        self, conn: sqlite3.Connection, cursor: sqlite3.Cursor
+    ) -> None:
         create_table_query = """
             CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,7 +79,7 @@ class DatabaseHandler:
             print(f"Error executing query: {e}")
             conn.rollback()
 
-    def _initialise_tables_if_not_exist(self):
+    def _initialise_tables_if_not_exist(self) -> None:
         conn = self._connect()
         cursor = conn.cursor()
 
@@ -82,7 +87,7 @@ class DatabaseHandler:
         self.initialise_genetic_data_table(conn, cursor)
         conn.close()
 
-    def get_all_users(self):
+    def get_all_users(self) -> Optional[List[User]]:
         conn = self._connect()
         cursor = conn.cursor()
 
@@ -105,8 +110,7 @@ class DatabaseHandler:
 
         return None if not users else users
 
-
-    def get_id_for_individual_id(self, individual_id):
+    def get_id_for_individual_id(self, individual_id: str) -> Optional[str]:
         conn = self._connect()
         cursor = conn.cursor()
 
@@ -121,14 +125,14 @@ class DatabaseHandler:
             conn.rollback()
             conn.close()
         return None if not id else id[0]
-    
 
-    def get_individual_data(self, individual_id: str, variants=None):
+    def get_individual_data(
+        self, individual_id: str, variants: Optional[str] = None
+    ) -> Optional[Any]:
         conn = self._connect()
         cursor = conn.cursor()
 
         id = self.get_id_for_individual_id(individual_id)
-        print(id)
 
         variants_list = None
         if variants:
@@ -152,7 +156,7 @@ class DatabaseHandler:
                 placeholders = ", ".join("?" for _ in variants_list)
                 fetch_genetic_data += f"AND variant_id IN ({placeholders})"
                 args.extend(variants_list)
-     
+
             try:
                 cursor.execute(fetch_genetic_data, tuple(args))
                 print(cursor.rowcount)
@@ -177,8 +181,7 @@ class DatabaseHandler:
         else:
             return "User not found"
 
-
-    def insert_new_individual(self, new_individual_id):
+    def insert_new_individual(self, new_individual_id: str) -> str:
         conn = self._connect()
         cursor = conn.cursor()
 
@@ -200,7 +203,9 @@ class DatabaseHandler:
 
         return f"User {new_individual_id} created"
 
-    def insert_genetic_data_to_db(self, geneticdata_array, individual_id):
+    def insert_genetic_data_to_db(
+        self, geneticdata_array: List[GeneticData], individual_id: str
+    ) -> str:
         id = self.get_id_for_individual_id(individual_id)
         if id:
             conn = self._connect()

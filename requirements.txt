@@ -2,3 +2,6 @@ fastapi[standard]==0.115.6
 pydantic==2.10.3
 uvicorn==0.30.5
 pytest
+flake8
+pre_commit
+mypy

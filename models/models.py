@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import date
 from enum import Enum
+from typing import Set
 
 
 class ChromosomeEnum(Enum):
@@ -26,13 +27,13 @@ class GeneticData:
     alternate_allele: AlleleEnum
     alternate_allele_frequency: float
 
-    def __post_init__(self):
-        supported_chromosomes = set()
-        supported_alleles = set()
+    def __post_init__(self) -> None:
+        supported_chromosomes: Set[ChromosomeEnum] = set()
+        supported_alleles: Set[AlleleEnum] = set()
 
-        for member in ChromosomeEnum.__members__.values():
-            if member is not None:
-                supported_chromosomes.add(member)
+        for memberC in ChromosomeEnum.__members__.values():
+            if memberC is not None:
+                supported_chromosomes.add(memberC)
 
         for member in AlleleEnum.__members__.values():
             if member is not None:
@@ -43,7 +44,7 @@ class GeneticData:
 
         if self.reference_allele not in supported_alleles:
             raise ValueError(f"Unsupported allele value: {self.reference_allele}")
-        
+
         if self.alternate_allele not in supported_alleles:
             raise ValueError(f"Unsupported allele value: {self.reference_allele}")
 
